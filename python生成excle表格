@@ -1,3 +1,4 @@
+# 安装xlwt模块pip install xlwt
 wb = xlwt.Workbook(encoding='utf-8')  # 创建实例对象，设置编码
 ws = wb.add_sheet('表名')  # 设置工作表名称
 a = 1  # 控制行

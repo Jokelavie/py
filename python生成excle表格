@@ -18,4 +18,4 @@ for data in data_list:
     a += 1  # 换行
 
 # 保存生成表
-wb.save(‘name.xls')  # 将生成的表格保存为name.xls
+wb.save(‘name.xls')  # 将生成的表格保存为name.xls文件名

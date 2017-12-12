@@ -1,0 +1,89 @@
+一：sudo apt-get install nginx  #安装
+
+	/etc/init.d/nginx start  #启动
+
+	/etc/init.d/nginx stop  #关闭
+
+	/etc/init.d/nginx restart  #重启
+
+二、三步用于测试时配置
+
+二：修改Nginx默认端口号，打开vi /etc/nginx/nginx.conf 文件 ，以下为文件修改的内容
+	server {
+    		listen       8088;    # 修改端口号
+   		server_name  localhost;
+
+    		#charset koi8-r; 
+
+    		#access_log  logs/host.access.log  main;
+
+    		location / {
+        		root   html;
+        		index  index.html index.htm;
+    		}
+
+三：重启nginx
+	/etc/init.d/nginx restart
+	访问：http://127.0.0.1:8088/ 若出现welcome to nginx!则Nginx启动成功。
+
+
+四：安装uwsgi，通过pip
+	pip install uwsgi
+
+五：进入Django项目目录，创建myweb_uwsgi.ini配置文件，以下为文件内容
+	# myweb_uwsgi.ini file
+	[uwsgi]
+
+	# Django-related settings
+	socket = :8000 # 设置项目执行端口
+
+	# the base directory (full path)
+	chdir = /home/fnngj/pydj/myweb  # 指定项目目录，这里假设项目目录为/home/fnngj/pydj/myweb
+
+	# Django s wsgi file
+	module = myweb.wsgi  # 连接创建django项目时自动生成的wsgi文件（wsgi.py）
+
+	# process-related settings  
+	# master
+	master = true  # 允许主进程存在
+
+	# maximum number of worker processes
+	processes = 4  # 设置开启的最大进程数
+
+	# ... with appropriate permissions - may be needed
+	# chmod-socket = 664
+	# clear environment on exit
+	vacuum = true # 设置服务器退出时自动清理环境，删除nuix socket文件和pid文件
+
+六：通过uwsgi启动项目，切换到项目目录下cd /home/fnngj/pydj/myweb/启动
+	uwsgi --ini myweb_uwsgi.ini 
+
+
+七：修改nginx.conf配置文件，打开 vi /etc/nginx/nginx.conf 文件，以下为文件修改的内容
+
+	server {
+    		listen         8099;  # 设置nginx端口，作用代理uwsgi对外的端口号
+    		server_name    127.0.0.1 # 设置ip
+    		charset UTF-8;
+    		access_log      /var/log/nginx/myweb_access.log;
+    		error_log       /var/log/nginx/myweb_error.log;
+
+    		client_max_body_size 75M;
+
+    		location / { 
+        		include uwsgi_params;  # 设置include为uwsgi_params
+        		uwsgi_pass 127.0.0.1:8000;  # 设置uwsgi_pass ip和端口 必须与myweb_uwsgi中socket端口和ip一致
+        		uwsgi_read_timeout 2;
+    		}   
+    		location /static {
+        		expires 30d;
+        		autoindex on; 
+        		add_header Cache-Control private;
+        		alias /home/fnngj/pydj/myweb/static/;
+     		}
+ 	}
+
+八：重新启动nginx
+
+	/etc/init.d/nginx restart
+	访问http://127.0.0.1:8099/

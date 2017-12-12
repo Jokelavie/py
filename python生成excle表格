@@ -1,0 +1,21 @@
+wb = xlwt.Workbook(encoding='utf-8')  # 创建实例对象，设置编码
+ws = wb.add_sheet('表名')  # 设置工作表名称
+a = 1  # 控制行
+b = 0  # 控制列
+
+
+# 向表格中插入字符串，前两位数字分别为行和列，第三个参数为要插入的内容，第四个参数可以设置样式
+# 设置表格字段名
+ws.write(0, b, ‘字段名1')
+ws.write(0, b+1, '字段名2')  
+ws.write(0, b+2, '字段名3')
+data_list = [{'key1':'value1','key2':'value2','key3':'value3'},{'key1':'value4','key2':'value5','key3':'value6'},{'key1':'value7'，'key2':'value8'，'key3':'value9'}]
+# 将数据填入表格
+for data in data_list:
+    ws.write(a, b, data['key1'])
+    ws.write(a, b+1, data['key2'])
+    ws.write(a, b + 2, data['key3'])
+    a += 1  # 换行
+
+# 保存生成表
+wb.save(‘name.xls')  # 将生成的表格保存为name.xls
